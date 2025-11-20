@@ -307,7 +307,29 @@ npm run test:coverage
 
 ## 🚢 Deployment
 
-### Production Build
+### Deploy to Render (Recommended)
+
+🚀 **Quick Deploy** (30 minutes):
+1. Read **[QUICK_DEPLOY.md](QUICK_DEPLOY.md)** for step-by-step instructions
+2. Follow **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** to track progress
+
+📚 **Complete Guides:**
+- **[DEPLOYMENT_SUMMARY.md](DEPLOYMENT_SUMMARY.md)** - Overview & cost breakdown
+- **[RENDER_DEPLOYMENT_GUIDE.md](RENDER_DEPLOYMENT_GUIDE.md)** - Comprehensive guide
+- **[render.yaml](render.yaml)** - Infrastructure as Code (one-click deploy)
+
+**What you'll deploy:**
+- ✅ PostgreSQL Database (Free tier: 1GB)
+- ✅ Backend API (Node.js + Express + Socket.IO)
+- ✅ Frontend (React + Vite static site)
+
+**Free Tier Total Cost:** $0/month (with cold starts)
+**Production Cost:** ~$14/month (no cold starts)
+
+### Other Deployment Options
+
+<details>
+<summary>Manual Production Build</summary>
 
 \`\`\`bash
 # Build frontend
@@ -329,6 +351,9 @@ Ensure these are set in production:
 - \`DATABASE_URL\` - Production database URL
 - \`JWT_SECRET\` - Strong secret key
 - \`SMTP_*\` - Email service credentials
+- \`CORS_ORIGIN\` - Your frontend URL
+
+</details>
 
 ## 🤝 Contributing
 

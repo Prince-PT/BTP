@@ -5,20 +5,39 @@ let transporter: nodemailer.Transporter;
 
 // Initialize email transporter
 export const initializeMailer = async () => {
+  // Debug: Log environment variables (without showing full credentials)
+  logger.info('🔍 Email Config Check:');
+  logger.info(`   SMTP_HOST: ${process.env.SMTP_HOST ? '✓' : '✗'}`);
+  logger.info(`   SMTP_USER: ${process.env.SMTP_USER ? '✓' : '✗'}`);
+  logger.info(`   SMTP_PASS: ${process.env.SMTP_PASS ? '✓ (hidden)' : '✗'}`);
+  logger.info(`   SMTP_PORT: ${process.env.SMTP_PORT || '587'}`);
+
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     // Use provided SMTP credentials
+    const port = parseInt(process.env.SMTP_PORT || '587');
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_PORT === '465',
+      port: port,
+      secure: port === 465, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
     });
-    logger.info('📧 Email service initialized with provided SMTP');
+    logger.info(`✅ Email service initialized with ${process.env.SMTP_HOST}`);
+    logger.info(`   Sending from: ${process.env.SMTP_FROM || process.env.SMTP_USER}`);
+    
+    // Verify connection
+    try {
+      await transporter.verify();
+      logger.info('✅ SMTP connection verified successfully!');
+    } catch (error) {
+      logger.error('❌ SMTP connection verification failed:', error);
+      throw error;
+    }
   } else {
     // Use Ethereal for development
+    logger.info('⚠️  Missing SMTP credentials, falling back to Ethereal (dev mode)');
     const testAccount = await nodemailer.createTestAccount();
     transporter = nodemailer.createTransport({
       host: 'smtp.ethereal.email',
@@ -59,11 +78,14 @@ export const sendOtpEmail = async (email: string, otp: string): Promise<void> =>
 
   const info = await transporter.sendMail(mailOptions);
 
-  logger.info(`📧 OTP email sent to ${email}`);
+  logger.info(`✅ OTP email sent successfully to ${email}`);
   
   // For development with Ethereal, log the preview URL
-  if (process.env.NODE_ENV !== 'production') {
-    logger.info(`📧 Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+  const previewUrl = nodemailer.getTestMessageUrl(info);
+  if (previewUrl) {
+    logger.info(`📧 Ethereal Preview URL: ${previewUrl}`);
+  } else {
+    logger.info(`📧 Real email sent via ${process.env.SMTP_HOST}`);
   }
 };
 
