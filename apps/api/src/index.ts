@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config(); // Load from apps/api/.env
+// Only load .env in development (Render uses environment variables directly)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config(); // Load from apps/api/.env
+}
 
 import express from 'express';
 import 'express-async-errors';
@@ -32,9 +35,17 @@ const io = new SocketIOServer(server, {
 // Make io accessible in routes
 app.set('io', io);
 
+// Log CORS configuration for debugging
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+console.log('🔒 CORS Configuration:', {
+  origin: corsOrigin,
+  NODE_ENV: process.env.NODE_ENV,
+  FRONTEND_URL: process.env.FRONTEND_URL,
+});
+
 // CORS configuration - MUST be before other middleware
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: corsOrigin,
   credentials: true,
   methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
   allowedHeaders: 'Content-Type, Authorization, Cookie, Accept',
@@ -63,6 +74,18 @@ app.use(morgan('dev'));
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Debug endpoint to check environment variables
+app.get('/api/debug/env', (req, res) => {
+  res.json({
+    CORS_ORIGIN: process.env.CORS_ORIGIN || 'NOT SET',
+    FRONTEND_URL: process.env.FRONTEND_URL || 'NOT SET',
+    SOCKET_CORS_ORIGIN: process.env.SOCKET_CORS_ORIGIN || 'NOT SET',
+    NODE_ENV: process.env.NODE_ENV || 'NOT SET',
+    PORT: process.env.PORT || 'NOT SET',
+    hasDatabase: !!process.env.DATABASE_URL,
+  });
 });
 
 // API Routes

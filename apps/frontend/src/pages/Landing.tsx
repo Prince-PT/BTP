@@ -144,22 +144,7 @@ const Landing = () => {
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {[
-                { value: '10K+', label: 'Happy Riders' },
-                { value: '2K+', label: 'Verified Drivers' },
-                { value: '50K+', label: 'Rides Completed' },
-                { value: '60%', label: 'Avg. Savings' },
-              ].map((stat, idx) => (
-                <div key={idx} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary-400 to-accent-cyan bg-clip-text text-transparent mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-500">{stat.label}</div>
-                </div>
-              ))}
-            </div>
+
           </div>
         </div>
       </section>
