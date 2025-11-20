@@ -2,6 +2,9 @@
 
 **Total Time: ~30 minutes**
 
+> **💡 Already using Neon database?**  
+> Use the simplified guide: [`RENDER_WITH_NEON.md`](./RENDER_WITH_NEON.md) (Only 4 steps!)
+
 ## Prerequisites
 - ✅ Code pushed to GitHub
 - ✅ Render account (free): https://render.com
@@ -36,18 +39,27 @@
 
 4. **Environment Variables** - Click **Add Environment Variable** for each:
 
-   **Required:**
+   **Core Application (REQUIRED):**
    ```bash
    NODE_ENV=production
+   PORT=3000
+   ```
+
+   **Database (REQUIRED - from Step 1):**
+   ```bash
    DATABASE_URL=<paste Internal Database URL from Step 1>
    DIRECT_URL=<paste Internal Database URL from Step 1>
+   ```
+
+   **Authentication (REQUIRED):**
+   ```bash
    JWT_SECRET=change-this-to-a-long-random-string-min-32-chars
    JWT_EXPIRES_IN=7d
    OTP_EXPIRY_MINUTES=5
    OTP_LENGTH=6
    ```
 
-   **Email (Gmail example):**
+   **Email/SMTP (REQUIRED - Gmail example):**
    ```bash
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
@@ -60,9 +72,45 @@
    > 1. Enable 2FA: https://myaccount.google.com/security
    > 2. Create App Password: https://myaccount.google.com/apppasswords
 
-   **CORS (temporary - will update in Step 4):**
+   **CORS/Frontend (REQUIRED - temporary, will update in Step 4):**
    ```bash
    CORS_ORIGIN=*
+   SOCKET_CORS_ORIGIN=*
+   FRONTEND_URL=https://rideshare-frontend.onrender.com
+   ```
+
+   **Maps & Geocoding (REQUIRED - free OpenStreetMap):**
+   ```bash
+   MAP_TILE_URL=https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+   MAP_ATTRIBUTION=© OpenStreetMap contributors
+   NOMINATIM_URL=https://nominatim.openstreetmap.org
+   NOMINATIM_USER_AGENT=RideShareApp/1.0
+   ```
+
+   **Ride Matching & Pricing (REQUIRED):**
+   ```bash
+   MAX_OFFSET_KM=3
+   MAX_EFFICIENCY_RATIO=0.3
+   BASE_FARE=2.50
+   RATE_PER_KM=1.20
+   OFFSET_RATE_PER_KM=2.00
+   ```
+
+   **Security & Rate Limiting (OPTIONAL but recommended):**
+   ```bash
+   RATE_LIMIT_WINDOW_MS=900000
+   RATE_LIMIT_MAX_REQUESTS=100
+   ```
+
+   **Logging (OPTIONAL):**
+   ```bash
+   LOG_LEVEL=info
+   ```
+
+   **Feature Flags (OPTIONAL):**
+   ```bash
+   ENABLE_MOCK_PAYMENTS=true
+   ENABLE_EMAIL_VERIFICATION=true
    ```
 
 5. Click **Create Web Service**
@@ -113,12 +161,13 @@ npx prisma migrate deploy
 
 1. Go back to your **API service** (rideshare-api)
 2. Click **Environment** tab
-3. Find `CORS_ORIGIN` variable
-4. Update it to your Frontend URL:
+3. Update these CORS variables with your actual frontend URL:
    ```bash
    CORS_ORIGIN=https://rideshare-frontend.onrender.com
+   SOCKET_CORS_ORIGIN=https://rideshare-frontend.onrender.com
+   FRONTEND_URL=https://rideshare-frontend.onrender.com
    ```
-5. Service will auto-redeploy (~2 min)
+4. Service will auto-redeploy (~2 min)
 
 ---
 

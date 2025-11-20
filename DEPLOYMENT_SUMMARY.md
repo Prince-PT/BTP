@@ -37,12 +37,32 @@ Your project is now ready for Render deployment with these new files:
 
 ## 🚀 How to Deploy
 
-### Option A: Quick Manual Deployment (Recommended for first time)
+### Choose Your Database Option:
+
+#### Option A: Using Neon Database (Recommended if already set up)
+
+You already have Neon configured! Follow **RENDER_WITH_NEON.md** for:
+
+```bash
+1. Get Neon connection string (already have it!)
+2. Deploy Backend API
+3. Deploy Frontend
+4. Update CORS
+```
+
+**Advantages:**
+- ✅ Skip database creation step
+- ✅ Faster wake-up (database never sleeps)
+- ✅ Serverless and auto-scales
+- ✅ Built-in connection pooling
+- ✅ Database branching for testing
+
+#### Option B: Using Render PostgreSQL (Full guide)
 
 Follow **QUICK_DEPLOY.md** for step-by-step instructions:
 
 ```bash
-1. Create PostgreSQL database
+1. Create PostgreSQL database on Render
 2. Deploy Backend API
 3. Deploy Frontend
 4. Update CORS
@@ -176,27 +196,79 @@ Total:     $45/month
 
 ## 🔧 Environment Variables Reference
 
-### Backend (API)
+### Complete Guide
 
-**Required:**
+For a **detailed explanation** of ALL 30 environment variables, see:
+📖 **[ENV_VARIABLES_GUIDE.md](./ENV_VARIABLES_GUIDE.md)**
+
+### Quick Reference
+
+#### Backend (API) - 28 variables
+
+**Core & Database (4 variables):**
 ```bash
 NODE_ENV=production
-DATABASE_URL=<from Render PostgreSQL>
-DIRECT_URL=<from Render PostgreSQL>
+PORT=3000
+DATABASE_URL=<from Render PostgreSQL or Neon>
+DIRECT_URL=<from Render PostgreSQL or Neon>
+```
+
+**Authentication (4 variables):**
+```bash
 JWT_SECRET=<generate strong random string>
 JWT_EXPIRES_IN=7d
 OTP_EXPIRY_MINUTES=5
 OTP_LENGTH=6
-CORS_ORIGIN=<your frontend URL>
 ```
 
-**Email (example with Gmail):**
+**Email/SMTP (5 variables):**
 ```bash
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
 SMTP_FROM=RideShare <your-email@gmail.com>
+```
+
+**CORS/Frontend (3 variables):**
+```bash
+CORS_ORIGIN=<your frontend URL>
+SOCKET_CORS_ORIGIN=<your frontend URL>
+FRONTEND_URL=<your frontend URL>
+```
+
+**Maps & Geocoding (4 variables):**
+```bash
+MAP_TILE_URL=https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+MAP_ATTRIBUTION=© OpenStreetMap contributors
+NOMINATIM_URL=https://nominatim.openstreetmap.org
+NOMINATIM_USER_AGENT=RideShareApp/1.0
+```
+
+**Ride Matching & Pricing (5 variables):**
+```bash
+MAX_OFFSET_KM=3
+MAX_EFFICIENCY_RATIO=0.3
+BASE_FARE=2.50
+RATE_PER_KM=1.20
+OFFSET_RATE_PER_KM=2.00
+```
+
+**Security & Rate Limiting (2 variables - optional):**
+```bash
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+**Logging (1 variable - optional):**
+```bash
+LOG_LEVEL=info
+```
+
+**Feature Flags (2 variables - optional):**
+```bash
+ENABLE_MOCK_PAYMENTS=true
+ENABLE_EMAIL_VERIFICATION=true
 ```
 
 ### Frontend (Static Site)
