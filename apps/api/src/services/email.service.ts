@@ -23,18 +23,23 @@ export const initializeMailer = async () => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      // Add timeouts to prevent hanging
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
     logger.info(`✅ Email service initialized with ${process.env.SMTP_HOST}`);
     logger.info(`   Sending from: ${process.env.SMTP_FROM || process.env.SMTP_USER}`);
     
-    // Verify connection
-    try {
-      await transporter.verify();
-      logger.info('✅ SMTP connection verified successfully!');
-    } catch (error) {
-      logger.error('❌ SMTP connection verification failed:', error);
-      throw error;
-    }
+    // Verify connection asynchronously (don't block startup)
+    transporter.verify()
+      .then(() => {
+        logger.info('✅ SMTP connection verified successfully!');
+      })
+      .catch((error) => {
+        logger.error('❌ SMTP connection verification failed:', error);
+        logger.warn('⚠️  Email sending may fail. Please check SMTP credentials.');
+      });
   } else {
     // Use Ethereal for development
     logger.info('⚠️  Missing SMTP credentials, falling back to Ethereal (dev mode)');
@@ -76,16 +81,27 @@ export const sendOtpEmail = async (email: string, otp: string): Promise<void> =>
     `,
   };
 
-  const info = await transporter.sendMail(mailOptions);
-
-  logger.info(`✅ OTP email sent successfully to ${email}`);
-  
-  // For development with Ethereal, log the preview URL
-  const previewUrl = nodemailer.getTestMessageUrl(info);
-  if (previewUrl) {
-    logger.info(`📧 Ethereal Preview URL: ${previewUrl}`);
-  } else {
-    logger.info(`📧 Real email sent via ${process.env.SMTP_HOST}`);
+  try {
+    // Add 15 second timeout for email sending
+    const sendPromise = transporter.sendMail(mailOptions);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Email sending timeout after 15 seconds')), 15000)
+    );
+    
+    const info: any = await Promise.race([sendPromise, timeoutPromise]);
+    logger.info(`✅ OTP email sent successfully to ${email}`);
+    
+    // For development with Ethereal, log the preview URL
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      logger.info(`📧 Ethereal Preview URL: ${previewUrl}`);
+    } else {
+      logger.info(`📧 Real email sent via ${process.env.SMTP_HOST}`);
+    }
+  } catch (error: any) {
+    logger.error(`❌ Failed to send OTP email to ${email}:`, error.message);
+    // Don't throw error - let user proceed without email
+    logger.warn(`⚠️  User can still use OTP from logs/database`);
   }
 };
 
