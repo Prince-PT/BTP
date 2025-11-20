@@ -1,0 +1,43 @@
+{
+  "name": "rideshare-monorepo",
+  "version": "1.0.0",
+  "description": "Advanced ride-sharing application with rider and driver features",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm:dev:api\" \"npm:dev:frontend\" --names \"API,UI\" --prefix-colors \"blue,magenta\"",
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:frontend": "cd apps/frontend && npm run dev",
+    "build": "npm run build:api && npm run build:frontend",
+    "build:api": "cd apps/api && npm run build",
+    "build:frontend": "cd apps/frontend && npm run build",
+    "test": "npm run test:api && npm run test:frontend",
+    "test:api": "cd apps/api && npm test",
+    "test:frontend": "cd apps/frontend && npm test",
+    "lint": "npm run lint:api && npm run lint:frontend",
+    "lint:api": "cd apps/api && npm run lint",
+    "lint:frontend": "cd apps/frontend && npm run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prisma:studio": "cd apps/api && npm run prisma:studio",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": [
+    "rideshare",
+    "carpool",
+    "real-time",
+    "websocket",
+    "maps"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "concurrently": "^8.2.2",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

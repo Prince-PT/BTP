@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  rides     RideMember[]
+  otpLogs   OTPLog[]     @relation("UserOTPLogs")
+
+  @@index([email])
+  @@map("users")
+}
+
+model Driver {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  phone        String
+  vehicle      String
+  vehicleModel String?
+  vehicleColor String?
+  licensePlate String?
+  licenseId    String?
+  isActive     Boolean  @default(true)
+  isAvailable  Boolean  @default(true)
+  currentLat   Float?
+  currentLng   Float?
+  heading      Float?
+  speed        Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  rides   Ride[]
+  otpLogs OTPLog[] @relation("DriverOTPLogs")
+
+  @@index([email])
+  @@index([isActive, isAvailable])
+  @@index([currentLat, currentLng])
+  @@map("drivers")
+}
+
+model OTPLog {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  purpose   String   @default("login") // login, verification, etc.
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+
+  // Relations (optional - can be user OR driver)
+  user      User?   @relation("UserOTPLogs", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  driver    Driver? @relation("DriverOTPLogs", fields: [driverId], references: [id], onDelete: Cascade)
+  driverId  String?
+
+  @@index([email, otp, expiresAt])
+  @@index([createdAt])
+  @@map("otp_logs")
+}
+
+// ============================================================================
+// RIDES
+// ============================================================================
+
+model Ride {
+  id            String     @id @default(uuid())
+  
+  // Creator of the ride request (rider)
+  createdBy     String     // User ID who created this ride request
+  
+  // Driver assignment (optional - null when pending)
+  driver        Driver?    @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  driverId      String?
+  
+  // Route details
+  originLat     Float
+  originLng     Float
+  originAddress String?
+  destLat       Float
+  destLng       Float
+  destAddress   String?
+  
+  // Schedule
+  departTime    DateTime
+  estimatedArrival DateTime?
+  
+  // Ride configuration
+  seatsNeeded   Int        @default(1)  // Number of seats requested
+  capacity      Int        @default(4)  // Total capacity (for shared rides)
+  isShared      Boolean    @default(false) // Is this a shared ride
+  seatsTaken    Int        @default(0)  // Current number of seats taken
+  
+  // Pricing
+  baseFare      Float
+  distanceKm    Float
+  estimatedDuration Int?   // minutes
+  
+  // Status
+  status        RideStatus @default(PENDING)
+  
+  // Timestamps
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  acceptedAt    DateTime?  // When driver accepted
+  startedAt     DateTime?
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+
+  // Relations
+  members       RideMember[]
+
+  @@index([status, departTime])
+  @@index([driverId, status])
+  @@index([createdBy, status])
+  @@index([originLat, originLng])
+  @@index([destLat, destLng])
+  @@map("rides")
+}
+
+model RideMember {
+  id        String       @id @default(uuid())
+  
+  // Relations
+  ride      Ride         @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  rideId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  
+  // Pickup/Drop details
+  pickupLat     Float
+  pickupLng     Float
+  pickupAddress String?
+  dropLat       Float
+  dropLng       Float
+  dropAddress   String?
+  
+  // Pricing for this member
+  price         Float
+  originalPrice Float?      // Original price before sharing
+  offsetKm      Float?      // Extra distance added to route
+  soloDistanceKm Float?     // Distance traveled alone
+  sharedDistanceKm Float?   // Distance traveled with others
+  dropOrder     Int?        // Order in which to drop this member (1, 2, 3...)
+  
+  // Status
+  status        MemberStatus @default(CONFIRMED)
+  
+  // Timestamps
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  pickedUpAt    DateTime?
+  droppedOffAt  DateTime?
+
+  @@index([rideId, status])
+  @@index([userId, status])
+  @@map("ride_members")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum RideStatus {
+  PENDING      // Waiting for driver to accept
+  ASSIGNED     // Driver assigned, waiting to start
+  IN_PROGRESS  // Currently driving
+  COMPLETED    // Finished
+  CANCELLED    // Cancelled
+}
+
+enum MemberStatus {
+  PENDING      // Waiting for driver approval (for shared rides)
+  CONFIRMED    // Confirmed rider
+  PICKED_UP    // Currently in vehicle
+  DROPPED_OFF  // Completed their journey
+  CANCELLED    // Cancelled their request
+}

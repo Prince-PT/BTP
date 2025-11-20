@@ -1,272 +1,357 @@
-# 🚖 Campus Rideshare - Full Stack Web Application
+# 🚗 CampusCommute - Campus Ride Sharing Platform
 
-A comprehensive ride-sharing platform built specifically for LNMIIT campus users (students & faculty) with advanced features including multi-passenger route-aware shared rides, driver decision control, fare splitting, and real-time tracking.
+A modern, full-stack ride-sharing application designed for campus communities with real-time tracking, dynamic pricing, and shared ride capabilities.
 
-## 📌 Project Overview
+## 🌟 Features
 
-This is a full-stack ride-sharing web application that enables campus users to:
-- Book rides within the campus
-- Share rides with multiple passengers
-- Track drivers in real-time
-- Calculate fares dynamically based on distance and sharing
-- Manage driver availability and accept/reject ride requests
+- **Smart Ride Matching**: AI-powered algorithm matches riders with drivers
+- **Shared Rides**: Split costs with other passengers going the same direction
+- **Real-time Tracking**: Live GPS tracking with Socket.IO
+- **Dynamic Pricing**: Fare automatically adjusts based on passengers and distance
+- **Role-based Access**: Separate dashboards for riders and drivers
+- **Secure Authentication**: JWT-based auth with email OTP verification
+- **Modern UI**: Beautiful dark-themed interface built with React & Tailwind CSS
 
-## 🛠️ Tech Stack
+## 🏗️ Tech Stack
 
 ### Frontend
-- **Framework**: Next.js 14 (App Router)
-- **Styling**: Tailwind CSS
-- **Maps**: Leaflet.js with OpenStreetMap
-- **Real-time**: Socket.IO Client
-- **HTTP Client**: Axios
-- **Language**: TypeScript
+- **React** with TypeScript
+- **Vite** for fast development
+- **Tailwind CSS** for styling
+- **Socket.IO Client** for real-time updates
+- **React Router** for navigation
+- **Leaflet** for interactive maps
 
 ### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: PostgreSQL
-- **ORM**: TypeORM
-- **Real-time**: Socket.IO
-- **Authentication**: JWT
-- **Language**: TypeScript
+- **Node.js** with Express
+- **TypeScript**
+- **Prisma ORM** with PostgreSQL
+- **Socket.IO** for WebSocket connections
+- **JWT** for authentication
+- **Winston** for logging
 
-## 📦 Project Structure
+### Infrastructure
+- **PostgreSQL** database
+- **Docker & Docker Compose** for containerization
+- **Nominatim** for geocoding
 
-```
-BTP/
-├── backend/           # Express.js API server
-│   ├── src/
-│   │   ├── config/         # Database configuration
-│   │   ├── entities/       # TypeORM entities (User, Driver, Ride, etc.)
-│   │   ├── controllers/    # Route controllers
-│   │   ├── routes/         # API routes
-│   │   ├── middleware/     # Auth middleware
-│   │   ├── socket/         # Socket.IO handlers
-│   │   ├── utils/          # Helper functions (distance, fare)
-│   │   └── index.ts        # Server entry point
-│   └── package.json
-│
-└── frontend/         # Next.js application
-    ├── app/              # App router pages
-    ├── components/       # React components
-    ├── contexts/         # React contexts (Auth)
-    ├── lib/
-    │   ├── api/          # API client functions
-    │   ├── socket/       # Socket.IO client
-    │   └── utils/        # Helper utilities
-    ├── types/            # TypeScript types
-    └── package.json
-```
+## 📋 Prerequisites
 
-## 🚀 Getting Started
+Before you begin, ensure you have the following installed:
 
-### Prerequisites
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
+- **PostgreSQL** (v14 or higher)
+- **Docker & Docker Compose** (optional, for containerized setup)
 
-- Node.js (v18 or higher)
-- PostgreSQL (v14 or higher)
-- npm or yarn
+## 🚀 Quick Start
 
-### 1. Database Setup
+### 1. Clone the Repository
 
-```bash
-# Install PostgreSQL if not installed
-# On macOS:
-brew install postgresql@14
+\`\`\`bash
+git clone https://github.com/Prince-PT/BTP.git
+cd BTP
+\`\`\`
 
-# Start PostgreSQL service
-brew services start postgresql@14
+### 2. Install Dependencies
 
+\`\`\`bash
+# Install root dependencies
+npm install
+
+# Install frontend dependencies
+cd apps/frontend
+npm install
+
+# Install backend dependencies
+cd ../api
+npm install
+
+# Go back to root
+cd ../..
+\`\`\`
+
+### 3. Set Up Environment Variables
+
+Create \`.env\` file in \`apps/api/\`:
+
+\`\`\`bash
+cp .env.example apps/api/.env
+\`\`\`
+
+Edit \`apps/api/.env\` with your settings:
+
+\`\`\`env
+# Database
+DATABASE_URL="postgresql://rideshare:rideshare123@localhost:5432/rideshare_db"
+
+# JWT Secret
+JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
+
+# Email Configuration (Optional - for OTP emails)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-app-password"
+SMTP_FROM="CampusCommute <noreply@campuscommute.com>"
+
+# Server
+PORT=3000
+NODE_ENV="development"
+\`\`\`
+
+### 4. Set Up the Database
+
+#### Option A: Using Docker (Recommended)
+
+\`\`\`bash
+# Start PostgreSQL with Docker Compose
+docker-compose up -d
+
+# Wait for PostgreSQL to be ready (about 10 seconds)
+sleep 10
+
+# Run migrations
+cd apps/api
+npx prisma migrate deploy
+
+# Seed the database (optional - creates test users)
+npx prisma db seed
+
+cd ../..
+\`\`\`
+
+#### Option B: Using Local PostgreSQL
+
+\`\`\`bash
 # Create database
-psql postgres
-CREATE DATABASE campus_rideshare;
-\q
-```
+createdb rideshare_db
 
-### 2. Backend Setup
+# Or use psql
+psql -U postgres
+CREATE DATABASE rideshare_db;
+\\q
 
-```bash
-cd backend
+# Update DATABASE_URL in apps/api/.env to match your PostgreSQL setup
 
-# Install dependencies
-npm install
+# Run migrations
+cd apps/api
+npx prisma migrate deploy
 
-# Create .env file
-cp .env.example .env
+# Seed the database (optional)
+npx prisma db seed
 
-# Update .env with your database credentials
-# Edit the following:
-# DB_HOST=localhost
-# DB_PORT=5432
-# DB_USERNAME=postgres
-# DB_PASSWORD=your_password
-# DB_DATABASE=campus_rideshare
+cd ../..
+\`\`\`
 
-# Run database migrations (TypeORM will auto-sync in dev mode)
+### 5. Start the Development Servers
+
+#### Option 1: Using Concurrent Script (from root)
+
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
-The backend server will start on `http://localhost:5000`
+This will start both frontend (port 5173) and backend (port 3000) concurrently.
 
-### 3. Frontend Setup
+#### Option 2: Manual Start (separate terminals)
 
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Create .env.local file
-echo "NEXT_PUBLIC_API_URL=http://localhost:5000" > .env.local
-echo "NEXT_PUBLIC_SOCKET_URL=http://localhost:5000" >> .env.local
-
-# Start development server
+**Terminal 1 - Backend:**
+\`\`\`bash
+cd apps/api
 npm run dev
-```
+\`\`\`
 
-The frontend will start on `http://localhost:3000`
+**Terminal 2 - Frontend:**
+\`\`\`bash
+cd apps/frontend
+npm run dev
+\`\`\`
 
-## 📱 Features
+### 6. Access the Application
 
-### User Authentication
-- ✅ Phone number-based login
-- ✅ Mock OTP verification (demo: 123456)
-- ✅ JWT token authentication
-- ✅ Role-based access (Student/Faculty)
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:3000
+- **API Health**: http://localhost:3000/health
 
-### Passenger Features
-- ✅ Book rides with pickup/dropoff locations
-- ✅ Real-time driver tracking
-- ✅ Shared ride matching algorithm
-- ✅ Dynamic fare calculation
-- ✅ Ride history
-- ✅ Real-time notifications
+## 👥 Test Accounts (After Seeding)
 
-### Driver Features
-- ✅ Register as driver with vehicle details
-- ✅ Toggle availability on/off
-- ✅ Accept/reject ride requests
-- ✅ View passenger requests with route details
-- ✅ Add passengers to existing rides
-- ✅ Mark passengers as picked up
-- ✅ Complete rides and mark payment
-- ✅ Real-time location broadcasting
+### Drivers
+- Email: \`driver1@campuscommute.dev\`
+- Email: \`driver2@campuscommute.dev\`
 
-### Advanced Features
-- ✅ **Route-aware shared rides**: Match passengers with overlapping routes
-- ✅ **Detour calculation**: Minimal detour for shared rides (<15%)
-- ✅ **Dynamic fare splitting**: Proportional fare based on distance
-- ✅ **Real-time updates**: Socket.IO for live location and notifications
-- ✅ **Distance calculation**: Haversine formula for accurate distances
-- ✅ **Campus-focused**: Optimized for LNMIIT campus
+### Riders
+- Email: \`rider1@campuscommute.dev\`
+- Email: \`rider2@campuscommute.dev\`
 
-## 🧮 Fare Calculation
+**Note**: In development mode, the OTP code is logged to console instead of being emailed.
 
-The fare system uses a simple and transparent model:
+## 📁 Project Structure
 
-```
-Base Fare = ₹20 (convenience fee)
-Per Km Rate = ₹10/km
-Minimum Fare = ₹30
+\`\`\`
+BTP/
+├── apps/
+│   ├── api/                 # Backend Express API
+│   │   ├── prisma/          # Database schema & migrations
+│   │   ├── src/
+│   │   │   ├── routes/      # API routes
+│   │   │   ├── services/    # Business logic
+│   │   │   ├── sockets/     # WebSocket handlers
+│   │   │   └── utils/       # Utilities
+│   │   └── package.json
+│   │
+│   └── frontend/            # React Frontend
+│       ├── src/
+│       │   ├── components/  # Reusable components
+│       │   ├── contexts/    # React contexts
+│       │   ├── pages/       # Page components
+│       │   ├── services/    # API client
+│       │   └── styles/      # Global styles
+│       └── package.json
+│
+├── docs/                    # Documentation
+├── infra/                   # Infrastructure files
+├── scripts/                 # Utility scripts
+├── docker-compose.yml       # Docker setup
+└── package.json            # Root package.json
+\`\`\`
 
-For Shared Rides:
-- Each passenger pays base fare (₹20)
-- Distance charge is split proportionally
-- Example: If passenger travels 3km out of 5km total route
-  Fare = ₹20 + (5km × ₹10 × 3/5) = ₹20 + ₹30 = ₹50
-```
+## 🛠️ Available Scripts
 
-## 🗺️ Maps & Location
+### Root Directory
+- \`npm run dev\` - Start both frontend and backend
+- \`npm run build\` - Build both applications
+- \`npm run clean\` - Clean all node_modules and build artifacts
 
-- **Map Library**: Leaflet.js with OpenStreetMap tiles (no API keys required)
-- **Geocoding**: Nominatim API (rate-limited, use sparingly)
-- **Distance**: Haversine formula for accurate campus distances
-- **Default Location**: LNMIIT Campus (26.9389°N, 75.9239°E)
+### Frontend (\`apps/frontend\`)
+- \`npm run dev\` - Start Vite dev server
+- \`npm run build\` - Build for production
+- \`npm run preview\` - Preview production build
+- \`npm run lint\` - Run ESLint
 
-## 🔌 API Endpoints
+### Backend (\`apps/api\`)
+- \`npm run dev\` - Start development server with hot reload
+- \`npm run build\` - Compile TypeScript
+- \`npm run start\` - Start production server
+- \`npm run prisma:migrate\` - Run database migrations
+- \`npm run prisma:studio\` - Open Prisma Studio
+- \`npm run test\` - Run tests
 
-### Authentication
-- `POST /api/auth/send-otp` - Send OTP to phone
-- `POST /api/auth/verify-otp` - Verify OTP and login/register
-- `GET /api/auth/profile` - Get current user profile
+## 🗃️ Database Management
 
-### Driver
-- `POST /api/drivers/register` - Register as driver
-- `PUT /api/drivers/availability` - Update availability
-- `PUT /api/drivers/location` - Update location
-- `GET /api/drivers/available` - Get available drivers
+### Run Migrations
+\`\`\`bash
+cd apps/api
+npx prisma migrate dev --name migration_name
+\`\`\`
 
-### Rides
-- `POST /api/rides/request` - Create ride request
-- `POST /api/rides/accept` - Accept ride request (driver)
-- `POST /api/rides/reject` - Reject ride request (driver)
-- `POST /api/rides/pickup` - Mark passenger picked up
-- `POST /api/rides/complete` - Complete ride for passenger
-- `POST /api/rides/payment` - Mark payment complete
-- `GET /api/rides/my-rides` - Get passenger's rides
-- `GET /api/rides/active` - Get driver's active rides
+### Reset Database
+\`\`\`bash
+cd apps/api
+npx prisma migrate reset
+\`\`\`
 
-## 🔄 Real-time Events
+### Open Prisma Studio
+\`\`\`bash
+cd apps/api
+npx prisma studio
+\`\`\`
 
-### Socket.IO Events
+## 🐛 Troubleshooting
 
-**Client → Server**
-- `user:join` - Join user room
-- `driver:join` - Join driver tracking room
-- `ride:join` - Join ride room
-- `driver:location:update` - Update driver location
-- `chat:message` - Send chat message
+### Port Already in Use
+\`\`\`bash
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
 
-**Server → Client**
-- `ride:accepted` - Ride accepted notification
-- `ride:rejected` - Ride rejected notification
-- `ride:new-request` - New ride request (for drivers)
-- `ride:new-passenger-request` - New passenger joining
-- `ride:fare-updated` - Fare updated due to new passenger
-- `driver:location:updated` - Driver location update
-- `chat:message:received` - Chat message received
+# Kill process on port 5173
+lsof -ti:5173 | xargs kill -9
+\`\`\`
 
-## 🎨 UI Components
+### Database Connection Issues
+\`\`\`bash
+# Check if PostgreSQL is running
+docker-compose ps
 
-- `LoginForm` - Phone number + OTP authentication
-- `Map` - Leaflet map with markers
-- `DashboardPage` - Main dashboard with map and actions
-- `AuthContext` - Global authentication state
+# Restart PostgreSQL
+docker-compose restart postgres
 
-## 🔒 Security
+# View PostgreSQL logs
+docker-compose logs postgres
+\`\`\`
 
-- JWT-based authentication
-- Password hashing with bcrypt
-- CORS configuration
-- Environment variables for sensitive data
-- Input validation
+### Clear Application Data
+\`\`\`bash
+cd apps/api
+psql -U rideshare -d rideshare_db -f ../../scripts/clear-data.sql
+\`\`\`
 
-## 🚧 Roadmap
+## 📚 API Documentation
 
-- [ ] Ride request page with location picker
-- [ ] Driver dashboard with active rides
-- [ ] Real-time chat between driver and passenger
-- [ ] Rating system for drivers
-- [ ] Push notifications
-- [ ] Payment gateway integration (UPI)
-- [ ] Ride analytics and insights
-- [ ] Admin panel
+See [docs/API.md](docs/API.md) for detailed API documentation.
+
+## 🏛️ Architecture
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system architecture details.
+
+## 🧪 Testing
+
+\`\`\`bash
+# Run backend tests
+cd apps/api
+npm test
+
+# Run with coverage
+npm run test:coverage
+\`\`\`
+
+## 🚢 Deployment
+
+### Production Build
+
+\`\`\`bash
+# Build frontend
+cd apps/frontend
+npm run build
+
+# Build backend
+cd ../api
+npm run build
+
+# Start production server
+npm start
+\`\`\`
+
+### Environment Variables for Production
+
+Ensure these are set in production:
+- \`NODE_ENV=production\`
+- \`DATABASE_URL\` - Production database URL
+- \`JWT_SECRET\` - Strong secret key
+- \`SMTP_*\` - Email service credentials
 
 ## 🤝 Contributing
 
-This is an academic project for LNMIIT BTP. Contributions are welcome!
+1. Fork the repository
+2. Create a feature branch (\`git checkout -b feature/amazing-feature\`)
+3. Commit your changes (\`git commit -m 'Add amazing feature'\`)
+4. Push to the branch (\`git push origin feature/amazing-feature\`)
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is for educational purposes.
+This project is licensed under the MIT License.
 
-## 👥 Authors
+## 👨‍💻 Authors
 
-- Rajat Sharma - LNMIIT
+- Prince PT - Initial work
 
-## 📞 Support
+## 🙏 Acknowledgments
 
-For issues or questions, please open an issue on GitHub.
+- OpenStreetMap for geocoding services
+- Leaflet for mapping
+- All contributors and testers
 
 ---
 
-**Note**: This is a demo application. The OTP is hardcoded as `123456` for testing purposes. In production, integrate with a real SMS gateway.
+**Happy Riding! 🚗💨**

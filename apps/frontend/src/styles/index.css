@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-900 text-white font-sans antialiased;
+  }
+  
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.3) rgba(15, 23, 42, 0.5);
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-900;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:from-primary-500 hover:to-primary-400 focus:ring-primary-500 shadow-md hover:shadow-glow;
+  }
+  
+  .btn-secondary {
+    @apply bg-dark-700 text-gray-300 hover:bg-dark-600 focus:ring-gray-500 border border-white/10;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary-500/50 text-primary-400 hover:bg-primary-500/10 hover:border-primary-500 focus:ring-primary-500 backdrop-blur-sm;
+  }
+  
+  .input {
+    @apply w-full px-4 py-2 border border-white/10 bg-dark-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder-gray-500 transition-all;
+  }
+  
+  .card {
+    @apply bg-dark-800 border border-white/10 rounded-2xl shadow-soft p-6 backdrop-blur-sm;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .badge-success {
+    @apply bg-green-500/20 text-green-400 border border-green-500/30;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+  }
+  
+  .badge-error {
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  }
+  
+  .badge-info {
+    @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+  }
+}
+
+/* Leaflet map styles - Dark theme */
+.leaflet-container {
+  @apply rounded-2xl;
+  background: #1e293b !important;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply bg-dark-800 text-white border border-white/10 rounded-xl shadow-glow;
+}
+
+.leaflet-popup-tip {
+  @apply bg-dark-800;
+}
+
+.leaflet-control-zoom a {
+  @apply bg-dark-800 text-white border-white/10;
+}
+
+.leaflet-control-zoom a:hover {
+  @apply bg-dark-700;
+}
+
+/* Custom scrollbar - Dark theme */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-600/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-600/50;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-bounceIn {
+  animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, transparent 0%, rgba(99, 102, 241, 0.1) 50%, transparent 100%);
+  background-size: 1000px 100%;
+}
+
+/* Enhanced input styles - Dark theme */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(1) brightness(0.8);
+  font-size: 1.2rem;
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator,
+input[type="time"]:hover::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.2);
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-primary-400 via-accent-purple to-accent-pink bg-clip-text text-transparent;
+}
+
+/* Glass morphism effect */
+.glass {
+  @apply bg-white/5 backdrop-blur-lg border border-white/10;
+}
+
+/* Glow effect on hover */
+.glow-hover {
+  @apply transition-all duration-300;
+}
+
+.glow-hover:hover {
+  @apply shadow-glow;
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply animate-shimmer bg-dark-700 rounded;
+}
+
+/* Selection style */
+::selection {
+  @apply bg-primary-500/30 text-white;
+}
+
+::-moz-selection {
+  @apply bg-primary-500/30 text-white;
+}
